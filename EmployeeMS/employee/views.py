@@ -19,7 +19,7 @@ class EmployeeListView(ListCreateAPIView):
 
     def get_queryset(self):
         owner = self.request.headers.get('position')
-        # TODO: add uuid and position to header and add permission class to authorize based on check with admin account.
+        # TODO: add uuid and position to header and add to permission class to authorize based on check with admin account.
         if owner == "admin":
             return EmployeeProfile.objects.all()
         return EmployeeProfile.objects.filter(employee=self.request.user)
@@ -146,11 +146,9 @@ class MyObtainTokenPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainSerializer
 
     def post(self, request, *args, **kwargs):
-        # Validate the request and get the token
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Extract the token and custom claims
         token = serializer.validated_data['access']
         refresh = serializer.validated_data['refresh']
 

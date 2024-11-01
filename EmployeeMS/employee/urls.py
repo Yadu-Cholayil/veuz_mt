@@ -11,6 +11,6 @@ urlpatterns = [
     path('employee/<employee_uuid>/field/<id>/', CustomFieldDetailView.as_view(), name='field_detail'),
     path('employee/<employee_uuid>/password/', ChangePasswordView.as_view(), name='change_password')
 
-]+ [path('', login_page, name='page'),
-    path('register/', registration, name='registration'),
-    path('home/', employee_page, name='employee'),]
+] # + [path('', login_page, name='page'),
+  #   path('register/', registration, name='registration'),
+  #   path('home/', employee_page, name='employee'),]

@@ -12,7 +12,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmployeeProfile
         fields = ['employee', 'employee_uuid', 'full_name', 'email', 'phone_number', 'position']
-        # depth =2
 
     def get_full_name(self, obj):
         full_name = "%s %s" % (obj.employee.first_name, obj.employee.last_name)
