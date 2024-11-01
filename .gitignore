@@ -1,1 +1,4 @@
 mtenv/
+
+__pycache__/
+*/migrations/
