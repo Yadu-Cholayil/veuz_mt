@@ -30,4 +30,5 @@ class MyTokenObtainSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         data['position'] = self.user.employeeprofile.position
+        data['employee_uuid'] = self.user.employeeprofile.employee_uuid
         return data

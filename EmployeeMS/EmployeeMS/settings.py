@@ -101,6 +101,7 @@ REST_FRAMEWORK = {
 
 # Customise default simple_JWT options
 SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=5),
     'ROTATE_REFRESH_TOKENS': True,
 }

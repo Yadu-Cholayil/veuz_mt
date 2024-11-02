@@ -1,0 +1,94 @@
+{% extends "index.html" %}
+
+{% block style %}
+    <style>
+        #err{
+            color: red;
+        }
+    </style>
+{% endblock %}
+
+{% block script %}
+<script>
+    async function register(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const firstName = document.getElementById('first_name').value;
+        const lastName = document.getElementById('last_name').value;
+        const email = document.getElementById('email').value;
+        const phoneNumber = document.getElementById('phone_number').value;
+        const position = document.getElementById('position').value;
+        const password = document.getElementById('password').value;
+        const password2 = document.getElementById('password2').value;
+
+        if (password !== password2) {
+            alert("Passwords do not match!");
+            return;
+        }
+        try {
+            const response = await fetch('/employees/employee/register/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: email,
+                    phone_number: phoneNumber,
+                    position: position,
+                    password: password,
+                    password2: password2,
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.log('Error:', errorData[0]);
+                document.getElementById("err").innerHTML = errorData[0]; 
+            }
+
+            const data = await response.json();
+            console.log('Registration successful:', data);
+            window.location.href = '/employees/home/'
+
+        } catch (error) {
+            const errorData = await response.json();
+            console.log('Error:', errorData[0]);
+            document.getElementById("err").innerHTML = errorData[0];
+}
+    };
+
+</script>
+{% endblock %}
+
+{% block content %}
+<div>
+    <form onsubmit  ="register(event)">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" required><br><br>
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name" required><br><br>
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required><br><br>
+        <label for="phone_number">Phone Number:</label>
+        <input type="text" id="phone_number" name="phone_number" required><br><br>
+        <label for="position">Position:</label>
+        <input type="text" id="position" name="position" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <label for="password2">Password2:</label>
+        <input type="password" id="password2" name="password2" required><br><br><br>
+        <input type="submit" value="Submit">
+
+        <p id="err"></p>
+    </form> 
+    <div>
+        <a href='/employees/'>Login Here</a>
+    </div> 
+</div>
+{% endblock %}

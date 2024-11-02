@@ -1,0 +1,49 @@
+<!doctype html5>
+
+<html>
+<head>
+    <title>employee page</title>
+    
+    {% block style %}
+    {% endblock %}
+
+    <script defer>
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = sessionStorage.getItem('token');
+            const login = document.getElementById('log')
+            login.innerHTML = '';
+            console.log("token", token)
+
+            const button = document.createElement('a')
+            button.href = '/employees/'
+            if (!token) {
+                button.innerText = 'Login'
+            } else {
+                button.innerText = 'Logout'
+
+                button.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                sessionStorage.clear();
+
+                window.location.href = button.href;
+                });
+            }
+            login.appendChild(button);
+        });
+    </script>
+
+    {% block script %}
+    {% endblock %}
+
+</head>
+<body>
+    <h3>Employee Management System</h3>
+
+    <div id="log"></div>
+
+    {% block content %}
+    {% endblock %}
+
+</body>
+</html>

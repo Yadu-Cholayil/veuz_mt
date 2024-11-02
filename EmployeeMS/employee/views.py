@@ -2,7 +2,9 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 
 from rest_framework import status, filters
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView, \
+                                    ListAPIView, CreateAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -11,7 +13,7 @@ from employee.models import EmployeeProfile, User, CustomField
 from employee.serializers import EmployeeSerializer, CustomFieldSerializer, MyTokenObtainSerializer
 
 # Create your views here.
-class EmployeeListView(ListCreateAPIView):
+class EmployeeListView(ListAPIView):
     """
         Employee registeration and listing API
     """
@@ -25,11 +27,17 @@ class EmployeeListView(ListCreateAPIView):
         return EmployeeProfile.objects.filter(employee=self.request.user)
 
 
+class EmployeeRegisterView(CreateAPIView):
+
+    serializer_class = EmployeeSerializer
+    permission_classes = [AllowAny,]
+    queryset = EmployeeProfile.objects.all()
+    
     def post(self, request, *args, **kwargs):
         data = request.data
 
         # TODO: move this check into serializer validators.
-        if data['password2']:
+        if data.get('password2'):
             if str(data['password']) != str(data['password2']):
                 return Response({'error': 'Password and Password2 does not match'})
 
@@ -50,9 +58,9 @@ class EmployeeListView(ListCreateAPIView):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except Exception as E:
-            print(E)
-            return Response(serializer.err, status=status.HTTP_400_BAD_REQUEST)
-
+            print(E.args)
+            return Response(E.args, status=status.HTTP_400_BAD_REQUEST)
+        
 
 class EmployeeDetailView(RetrieveUpdateDestroyAPIView):
 
@@ -92,7 +100,7 @@ class ChangePasswordView(UpdateAPIView):
     queryset = EmployeeProfile.objects.all()
 
     def get_object(self):
-        return EmployeeProfile.objects.filter(employee=self.kwargs['employee_uuid']).first()
+        return EmployeeProfile.objects.filter(employee_uuid=self.kwargs['employee_uuid']).first()
     
     def put(self, request, *args, **kwargs):
         return Response('Please use Patch method to reset password', status=status.HTTP_403_FORBIDDEN) 
@@ -101,7 +109,7 @@ class ChangePasswordView(UpdateAPIView):
         data = request.data
 
         instance = self.get_object().employee
-        user = authenticate(request=self.context.get('request'), username=instance.username, password=data['old_password'])
+        user = authenticate(request=self.request, username=instance.username, password=data['old_password'])
 
         if user is None:
             return Response('Invalid credentials', status=status.HTTP_401_UNAUTHORIZED)
@@ -109,7 +117,8 @@ class ChangePasswordView(UpdateAPIView):
         if str(data['new_password']) != str(data['new_password_2']):
                 return Response({'error': 'Password and Password_2 does not match'})
         
-        instance.save(password=data['new_password'])
+        instance.password = make_password(str(data['new_password']))
+        instance.save()
         return Response("Successfully saved", status=status.HTTP_200_OK)
 
 
@@ -138,12 +147,13 @@ class CustomFieldDetailView(RetrieveUpdateDestroyAPIView):
     queryset = CustomField.objects.all()
 
     def get_object(self):
-        return CustomField.objects.filter(employee = self.kwargs['employee_uuid'])
+        return CustomField.objects.filter(employee_uuid = self.kwargs['employee_uuid']).first()
 
 
 class MyObtainTokenPairView(TokenObtainPairView):
 
     serializer_class = MyTokenObtainSerializer
+    permission_classes = [AllowAny,]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -157,6 +167,7 @@ class MyObtainTokenPairView(TokenObtainPairView):
             'refresh': refresh,
             'access': token,
             'position': serializer.validated_data['position'],  # Custom claim
+            'employee_uuid': serializer.validated_data['employee_uuid'],
         }
         
-        return Response(response_data)
+        return Response(response_data, status=status.HTTP_200_OK)

@@ -1,0 +1,55 @@
+{% extends "index.html" %}
+
+{% block script %}
+<script>
+    async function login(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const response = await fetch('/api/token/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                    'username': username,
+                    'password': password
+                })
+        });
+        console.log(response)
+
+        if (response.ok) {
+            const data = await response.json();
+            // Save token to session storage
+            console.log(data)
+            sessionStorage.setItem('token', data.access)
+            sessionStorage.setItem('position', data.position)
+            sessionStorage.setItem('employee_uuid', data.employee_uuid)
+            //console.log(sessionStorage.getItem('token'))
+            // alert('Login successful!');
+            window.location.href = '/employees/home/'
+        } else {
+            const error = await response.json();
+            alert(error);
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div>
+    <form onsubmit="login(event)">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+        <input type="submit" value="Submit">
+
+    </form>
+    <div>
+        <a href='/employees/register/'>Register Here</a>
+    </div> 
+</div>
+{% endblock %}

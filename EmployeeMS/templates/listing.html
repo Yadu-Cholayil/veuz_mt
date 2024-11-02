@@ -1,0 +1,84 @@
+{% extends "index.html" %}
+
+{% block style %}
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+{% endblock %}
+
+{% block script %}
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = sessionStorage.getItem('token');
+      const position = sessionStorage.getItem('position');
+
+      try {
+          const response = await fetch('/employees/employee/', {
+              method: 'GET',
+              headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'position': position,
+              },
+          });
+
+          if (!response.ok) {
+              // add refresh token logic here
+              throw new Error("Access token expired!!!"); 
+          }
+
+          const employees = await response.json();
+          const tableBody = document.querySelector('#employee-table tbody')
+
+            tableBody.innerHTML = ''
+
+            employees.forEach(employee => {
+                const row = document.createElement('tr')
+
+                row.innerHTML = `
+                    <td>${employee.full_name}</td>
+                    <td>${employee.email}</td>
+                    <td>${employee.position}</td>
+                    <td>${employee.phone_number}</td>
+                `;
+
+                tableBody.appendChild(row)
+            });
+      } catch (error) {
+          console.error('Fetch error:', error);
+      }
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+    <div>
+      <h4> Employee list </h4>
+      <a href='/employees/password/'>Change Password</a>
+      <table id="employee-table">
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Position</th>
+            <th>Phone Number</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+{% endblock %}

@@ -24,6 +24,6 @@ from employee.views import MyObtainTokenPairView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/token/', MyObtainTokenPairView.as_view(), name='login'),
-     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('employees/', include('employee.urls')),
 ]
