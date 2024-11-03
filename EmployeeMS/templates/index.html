@@ -1,46 +1,57 @@
+{% load static %}
+
 <!doctype html5>
 
 <html>
 <head>
     <title>employee page</title>
+
+    <nav class="navbar">
+        <div class="navbar-container">
+            <input type="checkbox">
+            <ul class="menu-items">
+                    <li id="profile-link"><a href="{% url 'profile' %}">Profile</a></li>
+                    <li id="password-link"><a href='{% url "change_password" %}'>Change Password</a></li>
+                    <li id="logout-link"><a href="{% url 'logout' %}">Logout</a></li>
+                    <li id="login-link"><a href='{% url "login" %}'>Login</a></li>
+            </ul>
+            <a id='home-link'><h1 class="logo">EmployeeMS</h1></a>
+        </div>
+    </nav>  
     
-    {% block style %}
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    {% block css %}
     {% endblock %}
+    <script>
+        function checkLoginStatus() {
+            const isLoggedIn = sessionStorage.getItem('token') !== null; 
 
-    <script defer>
-        document.addEventListener('DOMContentLoaded', function () {
-            const token = sessionStorage.getItem('token');
-            const login = document.getElementById('log')
-            login.innerHTML = '';
-            console.log("token", token)
-
-            const button = document.createElement('a')
-            button.href = '{% url "login" %}'
-            if (!token) {
-                button.innerText = 'Login'
+            if (isLoggedIn) {
+                document.getElementById('profile-link').style.display = 'block';
+                document.getElementById('password-link').style.display = 'block';
+                document.getElementById('logout-link').style.display = 'block';
+                document.getElementById('login-link').style.display = 'none';
+                document.getElementById('home-link').href = "{% url 'home' %}";
             } else {
-                button.innerText = 'Logout'
-
-                button.addEventListener('click', function (event) {
-                event.preventDefault();
-
-                sessionStorage.clear();
-
-                window.location.href = button.href;
-                });
+                document.getElementById('profile-link').style.display = 'none';
+                document.getElementById('password-link').style.display = 'none';
+                document.getElementById('logout-link').style.display = 'none';
+                document.getElementById('login-link').style.display = 'block';
+                document.getElementById('home-link').href = "{% url 'login' %}";
             }
-            login.appendChild(button);
-        });
-    </script>
+        }
+
+        // Call the function on page load
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+</script>
 
     {% block script %}
     {% endblock %}
 
 </head>
 <body>
-    <h3>Employee Management System</h3>
-
-    <div id="log"></div>
 
     {% block content %}
     {% endblock %}

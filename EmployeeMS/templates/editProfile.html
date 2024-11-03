@@ -1,11 +1,8 @@
 {% extends "index.html" %}
+{% load static %}
 
-{% block style %}
-    <style>
-        #err{
-            color: red;
-        }
-    </style>
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}" />
 {% endblock %}
 
 {% block script %}
@@ -21,9 +18,9 @@
             newFieldGroup.className = `field-group`;
 
             newFieldGroup.innerHTML = `
-                <input type="text" id="field${fieldCount + 1}" placeholder="Field Name">
+                <input type="text" id="field${fieldCount + 1}" placeholder="Field Name" required>
                 <input type="text" id="input${fieldCount + 1}" name="fields[]" placeholder="Value"  required>
-                <button type="button" onclick="removeField(this.parentElement)">Remove</button>
+                <button type="button" id="field-btn" onclick="removeField(this.parentElement)"><i class="fa fa-trash-o"></i></button>
             `;
 
             fieldContainer.appendChild(newFieldGroup);
@@ -150,40 +147,40 @@
 {% endblock %}
 
 {% block content %}
-<div>
-    <form id="employeeForm">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
+<div class="login-page">
+    <div class="form">
+        <form id="employeeForm" class="login-form">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br><br>
 
-        <label for="first_name">First Name:</label>
-        <input type="text" id="first_name" name="first_name"><br><br>
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name"><br><br>
 
-        <label for="last_name">Last Name:</label>
-        <input type="text" id="last_name" name="last_name"><br><br>
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name"><br><br>
 
-        <label for="email">Email:</label>
-        <input type="text" id="email" name="email"><br><br>
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email"><br><br>
 
-        <label for="phone_number">Phone Number:</label>
-        <input type="text" id="phone_number" name="phone_number"><br><br>
+            <label for="phone_number">Phone Number:</label>
+            <input type="text" id="phone_number" name="phone_number"><br><br>
 
-        <label for="position">Position:</label>
-        <input type="text" id="position" name="position"><br><br>
+            <label for="position">Position:</label>
+            <input type="text" id="position" name="position"><br><br>
 
-            <div id="fieldContainer">
-                <div class="field-group">
-                    <input type="text" id="field1" placeholder="Field Name">
-                    <input type="text" id="input1" name="fields[]" placeholder="Value" required>
-                    <button type="button" onclick="removeField(this.parentElement)">Remove</button>
+            <label for="field1">Custom Fields:</label>
+                <div id="fieldContainer">
+                    <div class="field-group">
+                        <input type="text" id="field1" placeholder="Field Name">
+                        <input type="text" id="input1" name="fields[]" placeholder="Value">
+                        <button type="button" id="field-btn" onclick="removeField(this.parentElement)"><i class="fa fa-trash-o"></i></button>
+                    </div>
                 </div>
-            </div>
-            <button type="button" onclick="addField(event)">Add Field</button>
-        <input type="submit" value="Submit">
+                <button type="button" id="field-btn" onclick="addField(event)"><i class="fa fa-plus"></i> Add Field</button>
+            <button type="submit">Save</button>
 
-        <div id="err"></div>
-    </form> 
-    <div>
-        <a href='{% url "home" %}'>Home</a>
-    </div> 
+            <div id="err"></div>
+        </form> 
+    </div>  
 </div>
 {% endblock %}

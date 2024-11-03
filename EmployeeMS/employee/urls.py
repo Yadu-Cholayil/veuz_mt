@@ -3,7 +3,7 @@ from django.urls import path
 from employee.views import EmployeeListView, EmployeeDetailView, CustomFieldListView, CustomFieldDetailView, \
                             ChangePasswordView, EmployeeRegisterView
 from employee.template_views import login_page, employee_page, registration, change_password, profile_page, \
-                            edit_profile_page
+                            edit_profile_page, logout_page
 
 urlpatterns = [
     path('employee/', EmployeeListView.as_view(), name='employee_list'),
@@ -14,8 +14,9 @@ urlpatterns = [
     path('employee/<employee_uuid>/password/', ChangePasswordView.as_view(), name='change_password')
 
 ] + [path('', login_page, name='login'),
-    path('register/', registration, name='registration'),
     path('home/', employee_page, name='home'),
+    path('register/', registration, name='registration'),
     path('password/', change_password, name='change_password'),
     path('profile/', profile_page, name='profile'),
-    path('profile/edit/', edit_profile_page, name='profile_edit')]
+    path('profile/edit/', edit_profile_page, name='profile_edit'),
+    path('logout/', logout_page, name='logout')]

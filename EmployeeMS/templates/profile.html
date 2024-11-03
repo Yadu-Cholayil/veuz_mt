@@ -1,11 +1,8 @@
 {% extends "index.html" %}
+{% load static %}
 
-{% block style %}
-    <style>
-        #err{
-            color: red;
-        }
-    </style>
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}" />
 {% endblock %}
 
 {% block script %}
@@ -26,7 +23,7 @@
             console.log('UUID parameter is missing in the URL.');
         }
 
-        const profilesContainer = document.getElementById("profiles");
+        const profilesContainer = document.getElementById("profile");
 
         async function fetchEmployeeProfiles() {
             try {
@@ -56,14 +53,33 @@
 
             profileDiv.innerHTML = `
                 <h2>${profile.user.first_name} ${profile.user.last_name}</h2>
-                <p><strong>Phone Number:</strong> ${profile.phone_number}</p>
-                <p><strong>Position:</strong> ${profile.position}</p>
-                <p><strong>Created Date:</strong> ${new Date(profile.created_date).toLocaleDateString()}</p>
-                <h4>Custom Fields:</h4>
-                <ul>
-                    ${profile.fields.map(field => `<li>${field.field_name}: ${field.field_content}</li>`).join('')}
-                </ul>
+                <hr class="divider">
+                <div class="info-row">
+                    <strong>Phone Number</strong>
+                    <span>${profile.phone_number}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Position</strong>
+                    <span>${profile.position}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Created Date</strong>
+                    <span>${new Date(profile.created_date).toLocaleDateString()}</span>
+                </div>
+                
             `;
+
+            if (profile.fields && profile.fields.length > 0) {
+                profileDiv.innerHTML += `
+                    <ul>
+                        ${profile.fields.map(field => `
+                            <li>
+                                <span class="field-name">${field.field_name}</span>
+                                <span class="field-content">${field.field_content}</span>
+                            </li>`).join('')}
+                    </ul>
+                `;
+            }
 
             profilesContainer.appendChild(profileDiv);
         }
@@ -73,14 +89,7 @@
 {% endblock %}
 
 {% block content %}
-<div>
-    <h3>Employee Profiles</h3>
-    <div id="profiles"></div>
 
-        <div id="err"></div>
-    </form> 
-    <div>
-        <a href='{% url "home" %}'>Home</a>
-    </div> 
-</div>
+    <div id="profile" class="profile-card" ></div>
+
 {% endblock %}

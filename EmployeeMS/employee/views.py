@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
+from django.db import transaction
 
 from rest_framework import status, filters
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView, \
@@ -35,6 +36,7 @@ class EmployeeRegisterView(CreateAPIView):
     permission_classes = [AllowAny,]
     queryset = EmployeeProfile.objects.all()
     
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         data = request.data
 
@@ -113,6 +115,7 @@ class EmployeeDetailView(RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
         user = instance.employee
+        print(user)
         user.delete()
         return Response("Successfully deleted")
     

@@ -20,6 +20,6 @@ class EmployeeProfile(models.Model):
 class CustomField(models.Model):
     """Add extra fields to models"""
 
-    employee = models.ForeignKey(EmployeeProfile, on_delete=models.DO_NOTHING, related_name="fields")
+    employee = models.ForeignKey(EmployeeProfile, on_delete=models.CASCADE, related_name="fields")
     field_name = models.CharField(max_length=50)
     field_content = models.CharField(max_length=128)

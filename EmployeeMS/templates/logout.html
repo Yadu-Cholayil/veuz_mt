@@ -1,0 +1,18 @@
+{% extends "index.html" %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = sessionStorage.getItem('token');
+      const position = sessionStorage.getItem('position');
+
+      sessionStorage.clear()
+
+      window.location.href = '{% url "login" %}'
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div></div>
+{% endblock %}
