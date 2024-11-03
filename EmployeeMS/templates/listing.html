@@ -53,6 +53,7 @@ tr:nth-child(even) {
                     <td>${employee.email}</td>
                     <td>${employee.position}</td>
                     <td>${employee.phone_number}</td>
+                    <td><a href='{% url "profile" %}?uuid=${employee.employee_uuid}'>View</a>   <a href='{% url "profile_edit" %}?uuid=${employee.employee_uuid}'>Edit</a></td>
                 `;
 
                 tableBody.appendChild(row)
@@ -67,7 +68,8 @@ tr:nth-child(even) {
 {% block content %}
     <div>
       <h4> Employee list </h4>
-      <a href='/employees/password/'>Change Password</a>
+      <a href='{% url "change_password" %}'>Change Password</a>
+      <a href='{% url "profile" %}'>Profile</a>
       <table id="employee-table">
         <thead>
           <tr>
@@ -75,6 +77,7 @@ tr:nth-child(even) {
             <th>Email</th>
             <th>Position</th>
             <th>Phone Number</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>

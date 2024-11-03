@@ -1,0 +1,189 @@
+{% extends "index.html" %}
+
+{% block style %}
+    <style>
+        #err{
+            color: red;
+        }
+    </style>
+{% endblock %}
+
+{% block script %}
+<script>
+
+        function addField(event) {
+            console.log("add button")
+            const fieldContainer = document.getElementById('fieldContainer');
+            const fieldCount = fieldContainer.children.length;
+
+            // Create a new field group
+            const newFieldGroup = document.createElement('div');
+            newFieldGroup.className = `field-group`;
+
+            newFieldGroup.innerHTML = `
+                <input type="text" id="field${fieldCount + 1}" placeholder="Field Name">
+                <input type="text" id="input${fieldCount + 1}" name="fields[]" placeholder="Value"  required>
+                <button type="button" onclick="removeField(this.parentElement)">Remove</button>
+            `;
+
+            fieldContainer.appendChild(newFieldGroup);
+            console.log(newFieldGroup)
+
+        // Add event listener to the remove button
+        }
+        function removeField(fieldGroup) {
+            const fieldContainer = document.getElementById('fieldContainer');
+            fieldContainer.removeChild(fieldGroup);
+        }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const token = sessionStorage.getItem('token');
+        const position = sessionStorage.getItem('position');
+        let uuid = sessionStorage.getItem('employee_uuid');
+        const form = document.getElementById('employeeForm');
+   
+        const currentUrl = new URL(window.location.href);
+        
+        const edit_uuid = currentUrl.searchParams.get('uuid');
+
+        if (edit_uuid) {
+                uuid = edit_uuid
+        } else {
+            console.log('UUID parameter is missing in the URL.');
+        }
+
+        const profilesContainer = document.getElementById("profiles");
+
+
+        async function fetchEmployeeProfiles() {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/employees/employee/${uuid}/`,{
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'position': position,
+                    },
+                }); // Replace with your actual API endpoint
+                if (!response.ok) {
+                    throw new Error('Error getting response');
+                }
+                const data = await response.json();
+                displayProfiles(data);
+            } catch (error) {
+                console.error('There has been a problem with your fetch operation:', error);
+                profilesContainer.innerHTML = '<p>Error fetching profiles. Please try again later.</p>';
+            }
+        }
+
+        function displayProfiles(profile) {
+            document.getElementById('username').value = profile.user.username;
+            document.getElementById('first_name').value = profile.user.first_name;
+            document.getElementById('last_name').value = profile.user.last_name;
+            document.getElementById('email').value = profile.user.email;
+            document.getElementById('phone_number').value = profile.phone_number;
+            document.getElementById('position').value = profile.position;
+        profile.fields.forEach((field, index) => {
+            if (index === 0) {
+                // If it's the first field, populate the existing input
+                document.getElementById('field1').value = field.field_name;
+                document.getElementById('input1').value = field.field_content;
+            } else {
+                // If it's not the first field, add a new field group
+                addField(); // Function to create new fields
+                const newFieldGroup = document.querySelectorAll('.field-group')[index];
+                newFieldGroup.querySelector('input[placeholder="Field Name"]').value = field.field_name;
+                newFieldGroup.querySelector('input[name="fields[]"]').value = field.field_content;
+            }
+        });
+        }
+        fetchEmployeeProfiles();
+
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Grouped data
+            const userInfo = {
+                username: document.getElementById('username').value,
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                email: document.getElementById('email').value,
+            };
+
+            const contactInfo = {
+                phone_number: document.getElementById('phone_number').value,
+                position: document.getElementById('position').value,
+            };
+
+            const customFields = Array.from(document.querySelectorAll('.field-group')).map(group => ({
+                field_name: group.querySelector('input[placeholder="Field Name"]').value,
+                field_content: group.querySelector('input[name="fields[]"]').value
+            }));
+
+            // Prepare the data to send
+            const dataToSend = {
+                user_info: userInfo,
+                contact_info: contactInfo,
+                custom_fields: customFields,
+            };
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/employees/employee/${uuid}/`, { // Replace with your actual update endpoint
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'position': position,
+                    },
+                    body: JSON.stringify(dataToSend),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update employee profile');
+                }
+                alert('Employee profile updated successfully!');
+            } catch (error) {
+                console.error('Error updating employee profile:', error);
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div>
+    <form id="employeeForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name"><br><br>
+
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name"><br><br>
+
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email"><br><br>
+
+        <label for="phone_number">Phone Number:</label>
+        <input type="text" id="phone_number" name="phone_number"><br><br>
+
+        <label for="position">Position:</label>
+        <input type="text" id="position" name="position"><br><br>
+
+            <div id="fieldContainer">
+                <div class="field-group">
+                    <input type="text" id="field1" placeholder="Field Name">
+                    <input type="text" id="input1" name="fields[]" placeholder="Value" required>
+                    <button type="button" onclick="removeField(this.parentElement)">Remove</button>
+                </div>
+            </div>
+            <button type="button" onclick="addField(event)">Add Field</button>
+        <input type="submit" value="Submit">
+
+        <div id="err"></div>
+    </form> 
+    <div>
+        <a href='{% url "home" %}'>Home</a>
+    </div> 
+</div>
+{% endblock %}

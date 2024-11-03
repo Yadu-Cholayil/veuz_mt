@@ -1,5 +1,13 @@
 {% extends "index.html" %}
 
+{% block style %}
+    <style>
+        #err{
+            color: red;
+        }
+    </style>
+{% endblock %}
+
 {% block script %}
 <script>
     async function login(event) {
@@ -29,10 +37,11 @@
             sessionStorage.setItem('employee_uuid', data.employee_uuid)
             //console.log(sessionStorage.getItem('token'))
             // alert('Login successful!');
-            window.location.href = '/employees/home/'
+            window.location.href = '{% url "home" %}'
         } else {
             const error = await response.json();
-            alert(error);
+            console.log(error.detail)
+            document.getElementById("err").innerHTML = error.detail;
         }
     }
 </script>
@@ -48,8 +57,9 @@
         <input type="submit" value="Submit">
 
     </form>
+    <div id='err'></div>
     <div>
-        <a href='/employees/register/'>Register Here</a>
+        <a href='{% url "registration" %}'>Register Here</a>
     </div> 
 </div>
 {% endblock %}

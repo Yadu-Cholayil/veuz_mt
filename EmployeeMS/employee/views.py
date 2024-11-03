@@ -10,7 +10,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from employee.models import EmployeeProfile, User, CustomField
-from employee.serializers import EmployeeSerializer, CustomFieldSerializer, MyTokenObtainSerializer
+from employee.serializers import EmployeeSerializer, CustomFieldSerializer, UserSerializer, \
+                                ProfileSerializer, MyTokenObtainSerializer 
 
 # Create your views here.
 class EmployeeListView(ListAPIView):
@@ -21,7 +22,8 @@ class EmployeeListView(ListAPIView):
 
     def get_queryset(self):
         owner = self.request.headers.get('position')
-        # TODO: add uuid and position to header and add to permission class to authorize based on check with admin account.
+        print(owner)
+        # TODO: add to permission class to authorize based on check with admin account. This method is insecure.
         if owner == "admin":
             return EmployeeProfile.objects.all()
         return EmployeeProfile.objects.filter(employee=self.request.user)
@@ -64,25 +66,46 @@ class EmployeeRegisterView(CreateAPIView):
 
 class EmployeeDetailView(RetrieveUpdateDestroyAPIView):
 
-    serializer_class = EmployeeSerializer
+    serializer_class = ProfileSerializer
     queryset = EmployeeProfile.objects.all()
 
     def get_object(self):
         return EmployeeProfile.objects.filter(employee_uuid=self.kwargs['employee_uuid']).first()
+    
+    # def get(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     fields = instance.fields.all()
+        
+    #     combined_data = {
+    #         'employee': self.get_serializer(instance).data,
+    #         'fields' : CustomFieldSerializer(fields, many=True).data if fields else None,
+    #     }
+    #     return Response(combined_data, status=status.HTTP_200_OK)
+        
 
     def patch(self, request, *args, **kwargs):
         data = request.data
         employee = self.get_object()
-
-        fields = ['username', 'first_name', 'last_name', 'email']
         user = employee.employee
-        for item in fields:
-            if item in data:
-                setattr(user, item, data[item])
+        custom_fields = employee.fields.all()
 
-                user.save()
+        user_data = data['user_info']
+        contact_data = data['contact_info']
+        field_data = data['custom_fields']
+        
+        user = UserSerializer(user, data=user_data, partial=True)
+        user.is_valid(raise_exception=True)
+        user.save()
 
-        serializer = self.get_serializer(employee, data=request.data, partial=True)
+        custom_fields.delete()
+        print(field_data)
+        for field in field_data:
+            field['employee'] = self.kwargs['employee_uuid']
+            fieldserializer = CustomFieldSerializer(data=field)
+            fieldserializer.is_valid(raise_exception=True)
+            fieldserializer.save()
+
+        serializer = self.get_serializer(employee, data=contact_data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)

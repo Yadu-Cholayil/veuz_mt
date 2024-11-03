@@ -15,7 +15,7 @@
             console.log("token", token)
 
             const button = document.createElement('a')
-            button.href = '/employees/'
+            button.href = '{% url "login" %}'
             if (!token) {
                 button.innerText = 'Login'
             } else {

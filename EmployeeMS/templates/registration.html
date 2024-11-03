@@ -10,6 +10,7 @@
 
 {% block script %}
 <script>
+
     async function register(event) {
         event.preventDefault();
         const username = document.getElementById('username').value;
@@ -22,9 +23,16 @@
         const password2 = document.getElementById('password2').value;
 
         if (password !== password2) {
-            alert("Passwords do not match!");
+            document.getElementById("err").innerHTML = "Passwords do not match!";
             return;
         }
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailPattern.test(email)) {
+            document.getElementById("err").innerHTML =  'Please enter a valid email address.';
+            return
+    }
         try {
             const response = await fetch('/employees/employee/register/', {
                 method: 'POST',
@@ -52,43 +60,69 @@
 
             const data = await response.json();
             console.log('Registration successful:', data);
-            window.location.href = '/employees/home/'
-
+            
+            login(username,password)
+            
         } catch (error) {
             const errorData = await response.json();
             console.log('Error:', errorData[0]);
             document.getElementById("err").innerHTML = errorData[0];
 }
     };
+    
+    async function login(username, password){
+        const token_response = await fetch('/api/token/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                        'username': username,
+                        'password': password
+                    })
+            });
+            if (token_response.ok) {
+                const data = await token_response.json();
+                sessionStorage.setItem('token', data.access)
+                sessionStorage.setItem('position', data.position)
+                sessionStorage.setItem('employee_uuid', data.employee_uuid)
 
+                window.location.href = '{% url "home" %}'}
+                 else {
+                    const error = await response.json();
+                    console.log(error.detail)
+                    document.getElementById("err").innerHTML = error.detail;
+        }
+
+    }
 </script>
 {% endblock %}
 
 {% block content %}
 <div>
-    <form onsubmit  ="register(event)">
-        <label for="username">Username:</label>
+    <form onsubmit="register(event)">
+        <label for="username">Username*:</label>
         <input type="text" id="username" name="username" required><br><br>
-        <label for="first_name">First Name:</label>
+        <label for="first_name">First Name*:</label>
         <input type="text" id="first_name" name="first_name" required><br><br>
         <label for="last_name">Last Name:</label>
-        <input type="text" id="last_name" name="last_name" required><br><br>
+        <input type="text" id="last_name" name="last_name" ><br><br>
         <label for="email">Email:</label>
-        <input type="text" id="email" name="email" required><br><br>
+        <input type="text" id="email" name="email" ><br><br>
         <label for="phone_number">Phone Number:</label>
-        <input type="text" id="phone_number" name="phone_number" required><br><br>
+        <input type="text" id="phone_number" name="phone_number" ><br><br>
         <label for="position">Position:</label>
-        <input type="text" id="position" name="position" required><br><br>
-        <label for="password">Password:</label>
+        <input type="text" id="position" name="position" ><br><br>
+        <label for="password">Password*:</label>
         <input type="password" id="password" name="password" required><br><br>
-        <label for="password2">Password2:</label>
+        <label for="password2">Confirm password*:</label>
         <input type="password" id="password2" name="password2" required><br><br><br>
         <input type="submit" value="Submit">
 
         <p id="err"></p>
     </form> 
     <div>
-        <a href='/employees/'>Login Here</a>
+        <a href='{% url "login" %}'>Login Here</a>
     </div> 
 </div>
 {% endblock %}

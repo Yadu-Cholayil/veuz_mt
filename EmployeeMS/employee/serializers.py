@@ -2,7 +2,15 @@ from rest_framework import serializers
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from employee.models import EmployeeProfile, CustomField
+from employee.models import EmployeeProfile, CustomField, User
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+
 
 class EmployeeSerializer(serializers.ModelSerializer):
 
@@ -32,3 +40,13 @@ class MyTokenObtainSerializer(TokenObtainPairSerializer):
         data['position'] = self.user.employeeprofile.position
         data['employee_uuid'] = self.user.employeeprofile.employee_uuid
         return data
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+
+    user = UserSerializer(source='employee', read_only=True)
+    fields = CustomFieldSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = EmployeeProfile
+        fields = ['phone_number', 'position', 'created_date', 'user', 'fields']

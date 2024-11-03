@@ -15,5 +15,8 @@ def employee_page(request):
 def change_password(request):
     return render(request, template_name='password.html')
 
+def edit_profile_page(request):
+    return render(request, template_name='editProfile.html')
+
 def profile_page(request):
     return render(request, template_name='profile.html')
