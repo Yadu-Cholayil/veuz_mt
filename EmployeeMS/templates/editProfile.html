@@ -20,7 +20,7 @@
             newFieldGroup.innerHTML = `
                 <input type="text" id="field${fieldCount + 1}" placeholder="Field Name" required>
                 <input type="text" id="input${fieldCount + 1}" name="fields[]" placeholder="Value"  required>
-                <button type="button" id="field-btn" onclick="removeField(this.parentElement)"><i class="fa fa-trash-o"></i></button>
+                <button type="button" id="field-btn" onclick="removeField(this.parentElement)"><i class="fa fa-trash"></i></button>
             `;
 
             fieldContainer.appendChild(newFieldGroup);
