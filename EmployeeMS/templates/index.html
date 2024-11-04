@@ -10,6 +10,7 @@
         <div class="navbar-container">
             <input type="checkbox">
             <ul class="menu-items">
+                    <li id="admin-link"><a href="{% url 'registration' %}">Add Employee</a></li>
                     <li id="profile-link"><a href="{% url 'profile' %}">Profile</a></li>
                     <li id="password-link"><a href='{% url "change_password" %}'>Change Password</a></li>
                     <li id="logout-link"><a href="{% url 'logout' %}">Logout</a></li>
@@ -27,6 +28,7 @@
     <script>
         function checkLoginStatus() {
             const isLoggedIn = sessionStorage.getItem('token') !== null; 
+            const isAdmin = sessionStorage.getItem('position') == 'admin'; 
 
             if (isLoggedIn) {
                 document.getElementById('profile-link').style.display = 'block';
@@ -34,12 +36,19 @@
                 document.getElementById('logout-link').style.display = 'block';
                 document.getElementById('login-link').style.display = 'none';
                 document.getElementById('home-link').href = "{% url 'home' %}";
+                if (isAdmin){
+                    document.getElementById('admin-link').style.display = 'block';
+                } else {
+                    document.getElementById('admin-link').style.display = 'none';
+                }
+
             } else {
                 document.getElementById('profile-link').style.display = 'none';
                 document.getElementById('password-link').style.display = 'none';
                 document.getElementById('logout-link').style.display = 'none';
                 document.getElementById('login-link').style.display = 'block';
                 document.getElementById('home-link').href = "{% url 'login' %}";
+                document.getElementById('admin-link').style.display = 'none';
             }
         }
 

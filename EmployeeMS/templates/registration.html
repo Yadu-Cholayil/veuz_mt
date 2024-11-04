@@ -10,6 +10,8 @@
 
     async function register(event) {
         event.preventDefault();
+        const isAdmin = sessionStorage.getItem('position') == 'admin'; 
+
         const username = document.getElementById('username').value;
         const firstName = document.getElementById('first_name').value;
         const lastName = document.getElementById('last_name').value;
@@ -58,8 +60,11 @@
             const data = await response.json();
             console.log('Registration successful:', data);
             
+            if (isAdmin) {
+                window.location.href = '{% url "home" %}'}
+             else {
             login(username,password)
-            
+            }
         } catch (error) {
             const errorData = await response.json();
             console.log('Error:', errorData[0]);
